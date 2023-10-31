@@ -1,0 +1,15 @@
+//designing a 4x1 mux with Gate Level Modeling in Verilog 
+module mux_4x1(i0,i1,i2,i3,s1,s0);
+  input i0,i1,i2,i3,s1,s0;
+  output out;
+  wire s1n,s0n,y0,y1,y2,y3; //internal wires for inout
+  
+  not g1(s1n,s1);
+  not g2(s10,s0);
+  and g3(y0,i0,s1n.s0n);
+  and g4(y1,i1,s1n,s0);
+  and g5(y2,i2,s1,s0n);
+  and g6(y3,i3,s1,s0);
+  or g7(out,y0,y1,y2,y3);
+  
+endmodule 
