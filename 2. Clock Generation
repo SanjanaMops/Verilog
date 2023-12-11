@@ -1,0 +1,22 @@
+'timescale 1 ns/ 1 ps 
+
+module clkgen();
+  
+reg clk;
+  
+  initial 
+    begin 
+      clock = 1'b0; //initially clock at time 0
+    end 
+  
+  always 
+    begin 
+      #10 clock = ~clock; //toggle clock every half cycle 
+                          //time period = 20 ns 
+    end 
+  
+  initial 
+    #1000 finish; 
+
+endmodule 
+  
