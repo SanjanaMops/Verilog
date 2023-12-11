@@ -1,0 +1,47 @@
+module mux_4x1(a,b,c,d,ss0,ss1,z);
+  input a,b,c,d,ss0,ss1;
+  output z;
+  
+  wire a,b,c,d,ss0,ss1;
+  reg z; 
+  
+  always@(a,b,c,d,ss0,ss1)
+    begin 
+      case({ss0,ss1})
+        2'b00 : z = a;
+        2'b01 : z = b; 
+        2'b10 : z = c; 
+        2'b11 : z = d; 
+        default : z = 0; 
+      endcase 
+    end 
+endmodule 
+
+module mux_2x1(a,b,s,w); 
+  input a,b,s;
+  output w;
+  wire a,b,s;
+  reg w;
+  
+  always@(a,b,s)
+    begin 
+      case(s)
+        1'b0 : w = a;
+        1'b1 : w = b; 
+        default : w = 0;
+      endcase 
+    end 
+endmodule 
+
+module mux_8x1(i0,i1,i2,i3,i4,i5,i6,i7,s0,s1,s2,y);
+  input i0,i1,i2,i3,i4,i5,i6,i7,s0,s1,s2;
+  output y;
+  reg y; 
+  wire y1,y2;
+  
+  mux_4x1 uut1(i0,i1,i2,i3,s0,s1,y1);
+  mux_4x1 uut2(i4,i5,i6,i7,s0,s1,y2);
+  mux_2x1 uut3(y1,y2,s2,y);
+  
+endmodule 
+  
