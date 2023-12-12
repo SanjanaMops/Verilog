@@ -1,0 +1,30 @@
+module decoder_2x4(A0,A1,E,Y);
+  input A0,A1,E;
+  output [3:0]Y;
+  reg [3:0]Y;
+  
+  always@(A0 or A1 or E)
+    begin 
+      if (E)
+        case({A0,A1})
+          2'b00 : Y = 4'b0001;
+          2'b01 : Y = 4'b0010;
+          2'b10 : Y = 4'b0100;
+          2'b11 : Y = 4'b1000;
+          default : Y = 0; 
+        endcase 
+      else 
+        Y = 0;
+    end 
+endmodule 
+
+module decoder_3x8(A0,A1,A2,Y);
+  input A2,A1,A0;
+  output [7:0]Y;
+  reg [7:0]Y;
+  
+  decoder_2x4 uut1(A0,A1,~A2,Y[3:0]);
+  decoder_2x4 uut2(A0,A1,A2,Y[7:4]);
+  
+endmodule 
+  
