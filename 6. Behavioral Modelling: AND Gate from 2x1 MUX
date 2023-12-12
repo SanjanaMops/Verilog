@@ -1,0 +1,16 @@
+module mux_2x1(A,B,S,Y);
+  input A,B,S;
+  output Y;
+  
+  assign Y = S ? B : A;
+  
+endmodule 
+
+module and_gate(A,B,Y);
+  input A,B;
+  output Y;
+  reg Y;
+  
+  mux_2x1 uut(A,B,A,Y);
+  
+endmodule 
