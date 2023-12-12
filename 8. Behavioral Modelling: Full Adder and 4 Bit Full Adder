@@ -1,0 +1,56 @@
+module fa(A,B,Cin,Cout,Sum);
+  input A,B,Cin;
+  output Cout,Sum; 
+  reg Cout,Sum; //outputs registers, inputs by default wires
+  
+  always@(A or B or Cin) //sensitivity list
+    begin 
+      case({A,B,Cin}) //concatenation 
+        3'b000 : begin 
+          Sum = 0; Cout = 0;
+        end 
+        3'b001 : begin 
+          Sum = 1; Cout = 0;
+        end 
+        3'b010 : begin 
+          Sum = 1; Cout = 0;
+        end 
+        3'b011 : begin 
+          Sum = 0; Cout = 1;
+        end 
+        3'b100 : begin 
+          Sum = 1; Cout = 0;
+        end 
+        3'b101 : begin 
+          Sum = 0; Cout = 1;
+        end 
+        3'b110 : begin 
+          Sum = 0; Cout = 1;
+        end 
+        3'b111 : begin 
+          Sum = 1; Cout = 1; 
+        end 
+        default: begin 
+          Sum = 0; Cout = 0; 
+        end 
+      endcase 
+    end 
+endmodule 
+
+      module FA4(A,B,Cin,Sum,Carryout);
+        input [3:0]A,B; //A,B both 4 bit variables 
+        input Cin;
+        output [3:0]Sum; //4 bit sum
+        output Carryout;
+        
+        wire C1,C2,C3; //internal wires 
+        reg [3:0]Sum;
+        reg Carryout;
+        
+        fa FA1(A[0],B[0],Cin,Sum[0],C1); //instantiation of fa
+        fa FA2(A[1],B[1],C1,Sum[1],C2);
+        fa FA3(A[2],B[2],C2,Sum[2],C3);
+        fa FA4(A[3],B[3],C3,Sum[3],Carryout);
+        
+      endmodule 
+       
