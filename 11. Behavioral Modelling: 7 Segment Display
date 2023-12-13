@@ -1,7 +1,6 @@
-module hexto7segment (
-  input [3:0] X,
-  output reg [6:0] z
-);
+module hexto7segment (X,z);
+  input [3:0] X;
+  output reg [6:0] z;
 
 always @(*)
   case (X)
