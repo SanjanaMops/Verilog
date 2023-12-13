@@ -1,0 +1,27 @@
+module DFF(clk,reset,D,Q);
+  input clk, reset, D;
+  output reg Q;
+
+  always @(posedge clk) //synchronous reset
+begin
+  if (reset)
+    Q <= 1'b0;
+  else
+    Q <= D;
+end
+
+endmodule
+
+module DFF(clk,reset,D,Q);
+  input clk, reset, D;
+  output reg Q;
+
+  always @(posedge clk or negedge reset) //asynchronous reset
+begin
+  if (reset)
+    Q <= 1'b0;
+  else
+    Q <= D;
+end
+
+endmodule
