@@ -1,0 +1,37 @@
+//Master Slave Flip Flop Top Module 
+module MasterSlaveJKFF(j,k,reset,clk,q,qbar);
+  input j,k,reset,clk;
+  output reg q,qbar;
+  
+  Master M1(j,k,reset,clk,qx,qbarx); //Master instantiation 
+  Master S1(qx,qbarx,reset,~clk,q,qbar); //Slave instantiation
+  
+endmodule
+
+//Master/Slave Module 
+module Master(j,k,reset,clk,q,qbar);
+  input j,k,reset,clk;
+  output reg q,qbar;
+  
+  always@(posedge clk)
+    begin 
+      if(~reset)
+        case ({j,k})
+          2'b00 : begin 
+            q = q; qbar = qbar;
+          end 
+          2'b01 : begin 
+            q = 1'b0; qbar = 1'b1; 
+          end 
+          2'b10 : begin 
+            q = 1'b1; qbar = 1'b0;
+          end 
+          2'b11 : begin 
+            q = ~q; qbar = ~qbar; 
+          end 
+        endcase 
+      else begin 
+        q <= 1'bz; qbar <=1'bz;
+      end 
+    end 
+endmodule 
