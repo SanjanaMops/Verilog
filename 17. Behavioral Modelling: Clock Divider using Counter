@@ -1,0 +1,24 @@
+`timescale 1ns/1ps 
+module counter_3bit(clock,reset,Q,clk1,clk2,clk3);
+  input clock,reset;
+  output [2:0]Q;
+  output clk1,clk2,clk3;
+  
+  wire clock,reset; //inputs are wires 
+  reg [2:0]Q; //outputs are reg
+  wire clk1,clk2,clk3; //should be wire even though its output as it is using continuos assignment 
+  
+  always@(posedge clock)
+    begin 
+      if(reset)
+        Q <= 0;
+      else 
+        Q = Q+1;
+    end 
+  
+  assign clk1 = Q[0]; //divide by 2
+  assign clk2 = Q[1]; //by 4
+  assign clk3 = Q[2]; //by 8
+  
+endmodule 
+    
