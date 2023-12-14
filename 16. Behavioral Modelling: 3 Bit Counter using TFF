@@ -1,0 +1,27 @@
+module TFF(T,clk,reset,Q);
+  input T,clk,reset;
+  output reg Q; 
+  
+  always@(negedge clk)
+    begin 
+      if(reset)
+        Q <= 1'b0;
+      else 
+        if(T)
+          Q <= !Q;
+      else 
+        Q <= Q;
+    end 
+endmodule 
+
+module counter(clk,reset,Q);
+  input clk,reset;
+  output reg [2:0]Q;
+  
+  TFF uut1(1,~clk,reset,Q[0]);
+  TFF uut2(1,Q[0],reset,Q[1]);
+  TFF uut3(1,Q[1],reset,Q[2]);
+  
+endmodule 
+  
+  
