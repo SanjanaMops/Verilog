@@ -1,3 +1,5 @@
+//DESIGN 
+
 module fa(A,B,Cin,Cout,Sum);
   input A,B,Cin;
   output Cout,Sum; 
@@ -53,4 +55,29 @@ endmodule
         fa FA4(A[3],B[3],C3,Sum[3],Carryout);
         
       endmodule 
-       
+
+//TESTBENCH 
+
+`timescale 1ns/1ps
+
+module FA4_TB;
+  reg A, B, Cin;
+  wire Sum, Cout;
+
+  FA4 DUT(A, B, Cin, Sum, Carryout);
+
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0, FA4_TB);
+      $monitor($time, "A=%b, B=%b, Cin=%b, Sum=%b, Carryout=%b", A, B, Cin, Sum, Carryout);
+      A = 0; B = 0; Cin = 0;
+      #10 A = 0; B = 0; Cin = 0;
+      #10 B = 1;
+      #10 A = 1; 
+      #10 A = 1; B = 0; Cin = 1;
+      #10 A = 1; B = 1; Cin = 1;
+
+      #30 $finish;
+    end
+endmodule
