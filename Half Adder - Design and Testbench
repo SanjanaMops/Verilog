@@ -1,0 +1,36 @@
+//DATAFLOW MODELLING DESIGN 
+
+module HALF_ADDER(A, B, Sum, Carry);
+  input wire A, B;
+  output wire Sum, Carry;
+
+  assign Sum = A ^ B;
+  assign Carry = A & B;
+
+endmodule
+
+//Testbench 
+
+`timescale 1ns/1ps
+
+module HALF_ADDER_TB;
+  reg A, B;
+  wire Sum, Carry;
+
+  HALF_ADDER DUT(A, B, Sum, Carry);
+
+  initial
+    begin
+      $dumpfile("dump.vcd");
+      $dumpvars(0,HALF_ADDER_TB);
+      $monitor($time, "A=%b, B=%b, Sum=%b, Carry=%b", A, B, Sum, Carry);
+      A = 0; B = 0;
+      #10 A = 0; B = 0;
+      #10 A = 0; B = 1;
+      #10 A = 1; B = 0;
+      #10 A = 1; B = 1;
+
+      #30 $finish;
+    end
+endmodule
+
