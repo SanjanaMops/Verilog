@@ -76,7 +76,7 @@ module tb;
     reset = 0;
   end
   
-  task reset;
+  task rst;
     begin
       #1 reset = 1;
       #21 reset = 0;
@@ -93,7 +93,7 @@ module tb;
   endtask
   
   initial begin
-    reset;
+    rst;
     data(1);
     data(1);
     data(0);
