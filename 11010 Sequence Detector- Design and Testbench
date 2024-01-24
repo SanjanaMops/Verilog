@@ -60,4 +60,51 @@ module sequence_detector(clk,reset,data_in,out);
     end 
   
 endmodule 
-          
+
+//TESTBENCH 
+
+`timescale 1ns/1ps
+
+module tb;
+  reg clk, reset, data_in;
+  wire out;
+  
+  sequence_detector DUT(clk,reset,data_in,out);
+  
+  initial begin
+    clk = 0;
+    reset = 0;
+  end
+  
+  task reset;
+    begin
+      #1 reset = 1;
+      #21 reset = 0;
+    end
+  endtask
+  
+  always #10 clk = ~clk;
+  
+  task data(input bit d);
+    begin
+      @(posedge clk)
+      data_in = d;
+    end
+  endtask
+  
+  initial begin
+    reset;
+    data(1);
+    data(1);
+    data(0);
+    data(1);
+    data(0);
+    data(0);
+    #100 $stop;
+  end
+  
+  initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb);
+  end
+endmodule
