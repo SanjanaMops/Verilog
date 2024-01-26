@@ -42,5 +42,30 @@ module counter(clk, reset, Q);
   end
 endmodule
 
+//TESTBENCH 
 
+`timescale 1ns/1ps
+
+module tb;
+  reg clk, reset;
+  wire [2:0] Q;
+
+  counter DUT(clk, reset, Q);
+
+  always #10 clk = ~clk;
+
+  initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb);
+    $monitor($time, " clk=%b, reset=%b, Q=%b", clk, reset, Q);
+
+    reset = 1;
+    clk = 0;
+    #5 reset = 0;
+
+    #100; // Simulate for 100 time units
+
+    $finish;
+  end
+endmodule
   
