@@ -1,0 +1,94 @@
+//DESIGN 
+
+module asyncFIFO(clk,reset,write,read,data_in,data_out, full,empty);
+  
+  input wire clk,reset,write,read; 
+  input wire [7:0] data_in;
+  output reg [7:0] data_out; 
+  output wire full,empty; //full,empty status output
+
+  parameter DEPTH = 8;
+
+  reg [7:0] memory [0:DEPTH-1]; //FIFO memory- array of 8-bit registers
+  reg [2:0] write_ptr;  //ptr-keep track of current positions in array 
+  reg [2:0] read_ptr;
+  reg [2:0] count;
+
+  assign empty = (count == 0);
+  assign full = (count == DEPTH);
+
+  always @(posedge clk or posedge reset) 
+    begin
+    if (reset) 
+      begin
+      write_ptr <= 0;
+      read_ptr <= 0;
+      count <= 0;
+    end
+    else 
+      begin
+        if (write && !full) //write if FIFO not full
+        begin
+        memory[write_ptr] <= data_in;
+        write_ptr <= write_ptr + 1;
+        count <= count + 1;
+      end
+
+        if (read && !empty) //read if FIFO not empty
+        begin
+        data_out <= memory[read_ptr];
+        read_ptr <= read_ptr + 1;
+        count <= count - 1;
+      end
+    end
+  end
+
+endmodule
+
+//TESTBENCH 
+
+module tb;
+  reg clk;
+  reg reset;
+  reg write;
+  reg read;
+  reg [7:0] data_in;
+  wire [7:0] data_out;
+  wire full;
+  wire empty;
+
+  asyncFIFO(clk,reset,write,read,data_in,data_out,full,empty);
+
+  always #10 clk = ~clk;
+
+  initial begin
+    $dumpfile("dump.vcd");
+    %dumpvars(0, tb);
+    clk = 0;
+    reset = 1;
+    write = 0;
+    read = 0;
+    data_in = 0;
+
+    #10 reset = 0;
+
+    // Write data into FIFO
+    #20 write = 1;
+    data_in = 8'b10010001;
+    #10 write = 0;
+    data_in = 8'b11011011;
+    #10 write = 1;
+    data_in = 8'b00100011;
+    #10 write = 0;
+
+    // Read data from FIFO
+    #30 read = 1;
+    #20 read = 0;
+
+    // Check full and empty status
+    #10 $display("Full: %b, Empty: %b", full, empty);
+
+    #20 $finish;
+  end
+
+endmodule
