@@ -1,1 +1,179 @@
-m
+//DESIGN
+
+module async_fifo(
+  input wire wclk, rclk, wr_rst, rd_rst, wr_en, rd_en, // Input signals: write clock, read clock, write/reset, read/reset, write enable, read enable
+  input wire [7:0] data_in, // Input data (8-bit)
+  output reg data_full, data_empty, // Output flags: data full, data empty
+  output reg [7:0] data_out // Output data (8-bit)
+);
+  reg [7:0] mem [7:0]; // Memory array to store 8-bit data
+  reg [2:0] wr_ptr = 0; // Write pointer (3 bits)
+  reg [2:0] rd_ptr = 0; // Read pointer (3 bits)
+  reg wr_msb = 0, rd_msb = 0; // Most significant bit of write and read pointers
+  reg [2:0] wr_counter = 0, rd_counter = 0; // Write and read counters (3 bits)
+  wire [2:0] wr_ptr_gray, rd_ptr_gray; // Gray code representation of write and read pointers
+  reg [2:0] a, b, c, d; // Synchronizers for metastability handling
+
+  assign wr_ptr_gray = wr_ptr ^ (wr_ptr >> 1); // Calculate Gray code representation of write pointer
+  assign rd_ptr_gray = rd_ptr ^ (rd_ptr >> 1); // Calculate Gray code representation of read pointer
+
+  // Update write pointer's most significant bit based on write counter
+  always @(posedge wclk) begin
+    if (wr_counter == 7)
+      wr_msb <= ~wr_msb; // If write counter is 7, invert the value of wr_msb
+    else
+      wr_msb <= wr_msb; // Otherwise, keep the value of wr_msb unchanged
+  end
+
+  // Update read pointer's most significant bit based on read counter
+  always @(posedge rclk) begin
+    if (rd_counter == 7)
+      rd_msb <= ~rd_msb; // If read counter is 7, invert the value of rd_msb
+    else
+      rd_msb <= rd_msb; // Otherwise, keep the value of rd_msb unchanged
+  end
+
+  // Write data into FIFO on positive edge of write clock
+  always @(posedge wclk) begin
+    if (wr_en && !data_full) begin
+      mem[wr_ptr] <= data_in; // Write input data to memory at write pointer
+      wr_ptr <= wr_ptr + 1; // Increment write pointer
+      wr_counter <= wr_counter + 1; // Increment write counter
+    end else if (wr_rst) begin
+      wr_ptr <= 0; // Reset write pointer if write/reset signal is active
+      wr_counter <= 0; // Reset write counter if write/reset signal is active
+    end
+  end
+
+  // Read data from FIFO on positive edge of read clock
+  always @(posedge rclk) begin
+    if (rd_en && !data_empty) begin
+      data_out <= mem[rd_ptr]; // Output data from memory at read pointer
+      rd_ptr <= rd_ptr + 1; // Increment read pointer
+      rd_counter <= rd_counter + 1; // Increment read counter
+    end else if (rd_rst) begin
+      rd_ptr <= 0; // Reset read pointer if read/reset signal is active
+      rd_counter <= 0; // Reset read counter if read/reset signal is active
+    end
+  end
+
+  // Synchronizers for write and read pointers
+  always @(posedge wclk) begin
+    if (wr_rst == 0) begin
+      c <= rd_ptr_gray; // Store read pointer's Gray code representation in c
+      d <= c; // Store c in d
+    end else begin
+      c <= 0; // Reset c if write/reset signal is active
+      d <= 0; // Reset d if write/reset signal is active
+    end
+  end
+
+  always @(posedge rclk) begin
+    if (rd_rst == 0) begin
+      a <= wr_ptr_gray; // Store write pointer's Gray code representation in a
+      b <= a; // Store a in b
+    end else begin
+      a <= 0; // Reset a if read/reset signal is active
+      b <= 0; // Reset b if read/reset signal is active
+    end
+  end
+
+  // Check if FIFO is full on positive edge of write clock
+  always @(posedge wclk) begin
+    if ({!wr_msb, wr_ptr_gray[2:0]} == {rd_msb,Here's the remaining part of the corrected code:
+
+```verilog
+      data_full <= 1; // Set data_full flag to 1 if FIFO is full
+    else
+      data_full <= 0; // Reset data_full flag to 0 if FIFO is not full
+  end
+
+  // Check if FIFO is empty on positive edge of read clock
+  always @(posedge rclk) begin
+    if ({!rd_msb, rd_ptr_gray[2:0]} == {wr_msb, b[2:0]})
+      data_empty <= 1; // Set data_empty flag to 1 if FIFO is empty
+    else
+      data_empty <= 0; // Reset data_empty flag to 0 if FIFO is not empty
+  end
+endmodule
+
+//TESTBENCH 
+
+module tb;
+
+  // Testbench inputs
+  reg wclk, rclk, wr_rst, rd_rst, wr_en, rd_en;
+  reg [7:0] data_in;
+
+  // Testbench outputs
+  wire data_full, data_empty;
+  wire [7:0] data_out;
+
+  // Instantiate the FIFO module
+  async_fifo dut (
+    .wclk(wclk),
+    .rclk(rclk),
+    .wr_rst(wr_rst),
+    .rd_rst(rd_rst),
+    .wr_en(wr_en),
+    .rd_en(rd_en),
+    .data_in(data_in),
+    .data_full(data_full),
+    .data_empty(data_empty),
+    .data_out(data_out)
+  );
+
+  // Clock generation
+  always begin
+    wclk = 1;
+    #5;
+    wclk = 0;
+    #5;
+  end
+
+  always begin
+    rclk = 1;
+    #10;
+    rclk = 0;
+    #10;
+  end
+
+  // Initialize signals
+  initial begin
+    wr_rst = 1; // Set write/reset signal high initially
+    rd_rst = 1; // Set read/reset signal high initially
+    wr_en = 0; // Disable write initially
+    rd_en = 0; // Disable read initially
+    data_in = 0; // Set input data to 0 initially
+
+    #20;
+    wr_rst = 0; // Release write/reset signal
+    rd_rst = 0; // Release read/reset signal
+
+    #10;
+    wr_en = 1; // Enable write
+    data_in = 8'hAA; // Set input data to 0xAA
+
+    #10;
+    wr_en = 0; // Disable write
+    rd_en = 1; // Enable read
+
+    #20;
+    rd_en = 0; // Disable read
+
+    #10;
+    wr_en = 1; // Enable write
+    data_in = 8'h55; // Set input data to 0x55
+
+    #10;
+    wr_en = 0; // Disable write
+    rd_en = 1; // Enable read
+
+    #20;
+    rd_en = 0; // Disable read
+
+    #10;
+    $finish; // End simulation
+  end
+
+endmodule
