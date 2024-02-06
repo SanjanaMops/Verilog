@@ -47,6 +47,7 @@ endmodule
 
 
 //TESTBENCH 
+`timescale ns/1ps
 
 module tb;
   reg clk;
