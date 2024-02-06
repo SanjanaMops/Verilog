@@ -1,6 +1,6 @@
 //DESIGN 
 
-module FIFO(clk, reset, write, read, data_in, data_out, full, empty);
+module sync_FIFO(clk, reset, write, read, data_in, data_out, full, empty);
   
   input wire clk, reset, write, read; 
   input wire [7:0] data_in;
