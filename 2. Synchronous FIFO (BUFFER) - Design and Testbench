@@ -1,16 +1,16 @@
 //DESIGN 
 
-module sync_FIFO(clk,reset,write,read,data_in,data_out, full,empty);
+module FIFO(clk, reset, write, read, data_in, data_out, full, empty);
   
-  input wire clk,reset,write,read; 
+  input wire clk, reset, write, read; 
   input wire [7:0] data_in;
   output reg [7:0] data_out; 
-  output wire full,empty; //full,empty status output
+  output wire full, empty; // full, empty status output
 
   parameter DEPTH = 8;
 
-  reg [7:0] memory [0:DEPTH-1]; //FIFO memory- array of 8-bit registers
-  reg [2:0] write_ptr;  //ptr-keep track of current positions in array 
+  reg [7:0] memory [0:DEPTH-1]; // FIFO memory - array of 8-bit registers
+  reg [2:0] write_ptr;  // Pointer to keep track of current positions in array 
   reg [2:0] read_ptr;
   reg [2:0] count;
 
@@ -18,24 +18,24 @@ module sync_FIFO(clk,reset,write,read,data_in,data_out, full,empty);
   assign full = (count == DEPTH);
 
   always @(posedge clk or posedge reset) 
-    begin
+  begin
     if (reset) 
-      begin
+    begin
       write_ptr <= 0;
       read_ptr <= 0;
       count <= 0;
     end
     else 
+    begin
+      if (write && !full) // write if FIFO is not full
       begin
-        if (write && !full) //write if FIFO not full
-        begin
         memory[write_ptr] <= data_in;
         write_ptr <= write_ptr + 1;
         count <= count + 1;
       end
 
-        if (read && !empty) //read if FIFO not empty
-        begin
+      if (read && !empty) // read if FIFO is not empty
+      begin
         data_out <= memory[read_ptr];
         read_ptr <= read_ptr + 1;
         count <= count - 1;
@@ -44,6 +44,7 @@ module sync_FIFO(clk,reset,write,read,data_in,data_out, full,empty);
   end
 
 endmodule
+
 
 //TESTBENCH 
 
