@@ -108,18 +108,7 @@ module tb;
   wire [7:0] data_out;
 
   // Instantiate the FIFO module
-  async_fifo dut (
-    .wclk(wclk),
-    .rclk(rclk),
-    .wr_rst(wr_rst),
-    .rd_rst(rd_rst),
-    .wr_en(wr_en),
-    .rd_en(rd_en),
-    .data_in(data_in),
-    .data_full(data_full),
-    .data_empty(data_empty),
-    .data_out(data_out)
-  );
+  async_fifo dut (wclk,rclk,wr_rst,rd_rst,wr_en,rd_en,data_in,data_full,data_empty,data_out);
 
   // Clock generation
   always begin
