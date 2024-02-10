@@ -1,0 +1,155 @@
+// Asynchronous FIFO Design
+
+module async_fifo(
+   input wire wr_clk,     // Write clock
+   input wire wr_reset,   // Write reset
+   input wire wr_en,      // Write enable
+   input wire [7:0] wr_data,    // Write data
+   output wire wr_full,   // Data full flag
+
+   input wire rd_clk,     // Read clock
+   input wire rd_reset,   // Read reset
+   input wire rd_en,      // Read enable
+   output wire [7:0] rd_data,    // Read data
+   output wire rd_empty    // Data empty flag
+  );
+
+  reg [7:0] memory [DEPTH-1:0];
+  reg [7:0] wr_ptr;
+  reg [7:0] rd_ptr;
+  reg [7:0] counter;
+
+  parameter DEPTH = 8;
+
+  // Write block
+  always @(posedge wr_clk or posedge wr_reset)
+  begin
+    if (wr_reset)
+    begin
+      wr_ptr <= 8'h00;
+      counter <= 8'h00;
+    end
+    else if (wr_en && !wr_full)
+    begin
+      memory[wr_ptr] <= wr_data;
+      wr_ptr <= wr_ptr + 1;
+      counter <= counter + 1;
+    end
+  end
+
+  // Read block
+  always @(posedge rd_clk or posedge rd_reset)
+  begin
+    if (rd_reset)
+    begin
+      rd_ptr <= 8'h00;
+      counter <= 8'h00;
+    end
+    else if (rd_en && !rd_empty)
+    begin
+      rd_data <= memory[rd_ptr];
+      rd_ptr <= rd_ptr + 1;
+      counter <= counter - 1;
+    end
+  end
+
+  // Data full and empty flags
+  assign wr_full = (counter == DEPTH);
+  assign rd_empty = (counter == 8'h00);
+
+endmodule
+
+
+// Testbench for Asynchronous FIFO
+
+module async_fifo_tb;
+  
+  reg wr_clk, wr_reset, wr_en;
+  reg [7:0] wr_data;
+  wire wr_full;
+
+  reg rd_clk, rd_reset, rd_en;
+  wire [7:0] rd_data;
+  wire rd_empty;
+
+  // Instantiate the asynchronous FIFO
+  async_fifo dut (wr_clk,wr_reset,wr_en,wr_data,wr_full,rd_clk,rd_reset,rd_en,rd_data,rd_empty);
+
+  // Clock generation
+  always begin
+    wr_clk = 1'b0;
+    #5;
+    wr_clk = 1'b1;
+    #5;
+  end
+
+  always begin
+    rd_clk = 1'b0;
+    #8;
+    rd_clk = 1'b1;
+    #8;
+  end
+
+  // Stimulus
+  initial begin
+    wr_reset = 1'b1;
+    wr_en = 1'b0;
+    wr_data = 8'h00;
+
+    rd_reset = 1'b1;
+    rd_en = 1'b0;
+
+    #20;
+
+    wr_reset = 1'b0;
+    rd_reset = 1'b0;
+    wr_en = 1'b1;
+
+    #10;
+
+    wr_data = 8'h11;
+    #10;
+    wr_data = 8'h22;
+    #10;
+    wr_data = 8'h33;
+    #10;
+    wr_data = 8'h44;
+    #10;
+
+    wr_en = 1'b0;
+    wr_data = 8'h00;
+
+    #10;
+
+    rd_en = 1'b1;
+    #10;
+    rd_en = 1'b0;
+
+    #10;
+
+    wr_en = 1'b1;
+    #10;
+    wr_en = 1'b0;
+
+    #10;
+
+    wr_data = 8'h55;
+    #10;
+    wr_data = 8'h66;
+    #10;
+    wr_data = 8'h77;
+    #10;
+
+    wr_en = 1'b0;
+    wr_data = 8'h00;
+
+    #10;
+
+    rd_en = 1'b1;
+    #10;
+    rd_en = 1'b0;
+
+    $finish;
+  end
+
+endmodule
