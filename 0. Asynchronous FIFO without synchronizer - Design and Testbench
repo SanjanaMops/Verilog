@@ -4,13 +4,13 @@ module async_fifo(
    input wire wr_clk,     // Write clock
    input wire wr_reset,   // Write reset
    input wire wr_en,      // Write enable
-   input wire [7:0] wr_data,    // Write data
+   input [7:0] wr_data,    // Write data
    output wire wr_full,   // Data full flag
 
    input wire rd_clk,     // Read clock
    input wire rd_reset,   // Read reset
    input wire rd_en,      // Read enable
-   output wire [7:0] rd_data,    // Read data
+   output reg [7:0] rd_data,    // Read data
    output wire rd_empty    // Data empty flag
   );
 
